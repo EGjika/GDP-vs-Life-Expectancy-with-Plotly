@@ -3,5 +3,7 @@ This dynamic Plotly shows how the GDP per Capita and Life Expectancy evolves ove
 
 ![image](https://github.com/user-attachments/assets/2df36689-e285-42dc-b3b7-0717acb8708f)
 
+![image](https://github.com/user-attachments/assets/30b35869-49ef-4125-995d-9e55090a5539)
 
-More info may also be found here: https://rpubs.com/eraldagjika 
+
+More info may also be found here: https://rpubs.com/eraldagjika ; https://rpubs.com/eraldagjika/1248918 ; https://rpubs.com/eraldagjika/1248908
