@@ -1,0 +1,105 @@
+---
+title: "GDP and Life Expectancy- World Data"
+output: html_notebook
+---
+
+# GDP per Capita and Life Expectancy Evolution over time
+
+```{r}
+# Load necessary libraries
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(plotly)
+
+# Read the Excel file
+Data_Life_exp <- read_excel("GDP_Pcapita and Life_Exp.xlsx", sheet = "Life_Exp")
+#View(Data_Life_exp)
+Data_GDP <- read_excel("GDP_Pcapita and Life_Exp.xlsx", sheet = "GDP_PCap")
+
+```
+
+
+```{r}
+gdp_data<-Data_GDP
+life_exp_data<-Data_Life_exp
+
+# Tidy the data: Convert from wide to long format
+gdp_long <- gdp_data %>%
+  pivot_longer(cols = -`Country Name`, names_to = "Year", values_to = "GDP_per_capita") %>%
+  mutate(Year = as.numeric(Year))
+
+life_exp_long <- life_exp_data %>%
+  pivot_longer(cols = -`Country Name`, names_to = "Year", values_to = "Life_expectancy") %>%
+  mutate(Year = as.numeric(Year))
+
+# Merge the two datasets
+merged_data <- gdp_long %>%
+  inner_join(life_exp_long, by = c("Country Name", "Year"))
+
+# Create the Plotly visualization
+plot <- merged_data %>%
+  plot_ly(
+    x = ~GDP_per_capita,
+    y = ~Life_expectancy,
+    color = ~`Country Name`,
+    frame = ~Year,
+    text = ~paste(`Country Name`, "<br>Year:", Year),
+    hoverinfo = "text",
+    type = 'scatter',
+    mode = 'markers'
+  ) %>%
+  layout(
+    title = "GDP per Capita vs. Life Expectancy Over Time",
+    xaxis = list(title = "GDP per Capita"),
+    yaxis = list(title = "Life Expectancy (Years)")
+  )
+
+# Display the plot
+plot
+
+```
+
+# Including Population as a size variable
+
+```{r}
+# Load the Population data
+pop_data <- read_excel("GDP_Pcapita and Life_Exp.xlsx", sheet = "Pop")
+# Tidy the population data
+pop_long <- pop_data %>%
+  pivot_longer(cols = -`Country Name`, names_to = "Year", values_to = "Population") %>%
+  mutate(Year = as.numeric(Year))
+
+# Merge population data with GDP and Life Expectancy
+merged_data_with_pop <- merged_data %>%
+  inner_join(pop_long, by = c("Country Name", "Year"))
+
+# Ensure no missing values in size-related columns
+merged_data_with_pop <- merged_data_with_pop %>%
+  filter(!is.na(GDP_per_capita), !is.na(Life_expectancy), !is.na(Population))
+
+# Create the Plotly visualization with size representing population
+plot <- plot_ly(
+  data = merged_data_with_pop,
+  x = ~GDP_per_capita,
+  y = ~Life_expectancy,
+  color = ~`Country Name`,
+  size = ~Population, # Set size based on population
+  frame = ~Year,
+  text = ~paste(`Country Name`, "<br>Year:", Year, "<br>Population:", Population),
+  hoverinfo = "text",
+  type = 'scatter',
+  mode = 'markers'
+) %>%
+  layout(
+    title = list(text = "GDP per Capita vs. Life Expectancy Over Time with Population Size"),
+    xaxis = list(title = "GDP per Capita"),
+    yaxis = list(title = "Life Expectancy (Years)"),
+    showlegend = TRUE
+  )
+
+# Display the plot
+plot
+
+```
+
